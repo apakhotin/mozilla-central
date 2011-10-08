@@ -373,6 +373,16 @@ abstract public class GeckoApp
                     return true;
                 }
             });
+
+        MenuItem prefItem = menu.add("Preferences");
+        prefItem.setIcon(android.R.drawable.ic_menu_preferences);
+        prefItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                public boolean onMenuItemClick(MenuItem item) {
+                    Intent intent = new Intent(self, GeckoPreferences.class);
+                    startActivity(intent);
+                    return true;
+                }
+            });
         return true;
     }
 

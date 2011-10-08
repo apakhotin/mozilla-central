@@ -50,12 +50,14 @@
 #include "nsIObserverService.h"
 #include "mozilla/Services.h"
 #include "nsINetworkLinkService.h"
+#include "mozilla/Preferences.h"
 
 #ifdef MOZ_CRASHREPORTER
 #include "nsICrashReporter.h"
 #include "nsExceptionHandler.h"
 #endif
 
+#define ALOG(args...)  __android_log_print(ANDROID_LOG_INFO, "Gecko" , ## args)
 
 using namespace mozilla;
 
@@ -73,6 +75,12 @@ extern "C" {
     NS_EXPORT void JNICALL Java_org_mozilla_gecko_GeckoAppShell_onChangeNetworkLinkStatus(JNIEnv *, jclass, jstring status, jstring type);
     NS_EXPORT void JNICALL Java_org_mozilla_gecko_GeckoAppShell_reportJavaCrash(JNIEnv *, jclass, jstring stack);
     NS_EXPORT void JNICALL Java_org_mozilla_gecko_GeckoAppShell_executeNextRunnable(JNIEnv *, jclass);
+    NS_EXPORT void JNICALL Java_org_mozilla_gecko_GeckoAppShell_setBoolPref(JNIEnv *, jclass, jstring pref, jboolean value);
+    NS_EXPORT void JNICALL Java_org_mozilla_gecko_GeckoAppShell_setIntPref(JNIEnv *, jclass, jstring pref, jint value);
+    NS_EXPORT void JNICALL Java_org_mozilla_gecko_GeckoAppShell_setStringPref(JNIEnv *, jclass, jstring pref, jstring value);
+    NS_EXPORT jboolean JNICALL Java_org_mozilla_gecko_GeckoAppShell_getBoolPref(JNIEnv *, jclass, jstring pref, jboolean defaultValue);
+    NS_EXPORT jint     JNICALL Java_org_mozilla_gecko_GeckoAppShell_getIntPref(JNIEnv *, jclass, jstring pref, jint defaultValue);
+    NS_EXPORT jstring  JNICALL Java_org_mozilla_gecko_GeckoAppShell_getStringPref(JNIEnv *, jclass, jstring pref, jstring defaultValue);
 }
 
 
@@ -191,4 +199,51 @@ Java_org_mozilla_gecko_GeckoAppShell_executeNextRunnable(JNIEnv *, jclass)
     }
     AndroidBridge::Bridge()->ExecuteNextRunnable();
     __android_log_print(ANDROID_LOG_INFO, "GeckoJNI", "leaving %s", __PRETTY_FUNCTION__);
+}
+
+NS_EXPORT void JNICALL
+Java_org_mozilla_gecko_GeckoAppShell_setBoolPref(JNIEnv *, jclass, jstring pref, jboolean value)
+{
+    nsJNIString jniStr(pref);
+    Preferences::SetBool(NS_ConvertUTF16toUTF8(jniStr.get()).get(), value);
+}
+
+NS_EXPORT void JNICALL
+Java_org_mozilla_gecko_GeckoAppShell_setIntPref(JNIEnv *, jclass, jstring pref, jint value)
+{
+    nsJNIString jniStr(pref);
+    Preferences::SetInt(NS_ConvertUTF16toUTF8(jniStr.get()).get(), value);
+}
+
+NS_EXPORT void JNICALL
+Java_org_mozilla_gecko_GeckoAppShell_setStringPref(JNIEnv *jenv, jclass, jstring pref, jstring value)
+{
+    nsJNIString jniStrPref(pref);
+    nsJNIString jniStrValue(value);
+    Preferences::SetString(NS_ConvertUTF16toUTF8(jniStrPref.get()).get(), jniStrValue);
+}
+
+NS_EXPORT jboolean JNICALL
+Java_org_mozilla_gecko_GeckoAppShell_getBoolPref(JNIEnv *, jclass, jstring pref, jboolean defaultValue)
+{
+    nsJNIString jniStr(pref);
+    return Preferences::GetBool(NS_ConvertUTF16toUTF8(jniStr.get()).get(), defaultValue);
+}
+
+NS_EXPORT jint JNICALL
+Java_org_mozilla_gecko_GeckoAppShell_getIntPref(JNIEnv *, jclass, jstring pref, jint defaultValue)
+{
+    nsJNIString jniStr(pref);
+    return Preferences::GetInt(NS_ConvertUTF16toUTF8(jniStr.get()).get(), defaultValue);
+}
+
+NS_EXPORT jstring JNICALL
+Java_org_mozilla_gecko_GeckoAppShell_getStringPref(JNIEnv *jenv, jclass, jstring pref, jstring defaultValue)
+{
+    nsJNIString jniStr(pref);
+    nsAutoString result;
+    if (NS_FAILED(Preferences::GetString(NS_ConvertUTF16toUTF8(jniStr.get()).get(), &result))) {
+        result = jniStr;
+    }
+    return jenv->NewString(result.get(), result.Length());
 }

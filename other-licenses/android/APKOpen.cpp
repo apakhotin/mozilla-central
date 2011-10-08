@@ -230,6 +230,15 @@ Java_org_mozilla_gecko_GeckoAppShell_ ## name(JNIEnv *jenv, jclass jc, type1 one
   f_ ## name(jenv, jc, one, two, three); \
 }
 
+#define SHELL_WRAPPER2RET(name,type1,type2,typeRet) \
+typedef typeRet (*name ## _t)(JNIEnv *, jclass, type1 one, type2 two); \
+static name ## _t f_ ## name; \
+extern "C" NS_EXPORT typeRet JNICALL \
+Java_org_mozilla_gecko_GeckoAppShell_ ## name(JNIEnv *jenv, jclass jc, type1 one, type2 two) \
+{ \
+  return f_ ## name(jenv, jc, one, two); \
+}
+
 SHELL_WRAPPER0(nativeInit)
 SHELL_WRAPPER1(nativeRun, jstring)
 SHELL_WRAPPER1(notifyGeckoOfEvent, jobject)
@@ -243,6 +252,12 @@ SHELL_WRAPPER2(onChangeNetworkLinkStatus, jstring, jstring)
 SHELL_WRAPPER1(reportJavaCrash, jstring)
 SHELL_WRAPPER0(executeNextRunnable)
 SHELL_WRAPPER1(cameraCallbackBridge, jbyteArray)
+SHELL_WRAPPER2(setBoolPref, jstring, jboolean)
+SHELL_WRAPPER2(setIntPref, jstring, jint)
+SHELL_WRAPPER2(setStringPref, jstring, jstring)
+SHELL_WRAPPER2RET(getBoolPref, jstring, jboolean, jboolean)
+SHELL_WRAPPER2RET(getIntPref, jstring, jint, jint)
+SHELL_WRAPPER2RET(getStringPref, jstring, jstring, jstring)
 
 static void * xul_handle = NULL;
 static time_t apk_mtime = 0;
@@ -680,6 +695,12 @@ loadLibs(const char *apkName)
   GETFUNC(reportJavaCrash);
   GETFUNC(executeNextRunnable);
   GETFUNC(cameraCallbackBridge);
+  GETFUNC(setBoolPref);
+  GETFUNC(setIntPref);
+  GETFUNC(setStringPref);
+  GETFUNC(getBoolPref);
+  GETFUNC(getIntPref);
+  GETFUNC(getStringPref);
 #undef GETFUNC
   gettimeofday(&t1, 0);
   struct rusage usage2;

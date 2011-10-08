@@ -124,5 +124,15 @@
             </intent-filter>
         </activity>
         <activity android:name="org.mozilla.gecko.AwesomeBar"></activity>
+
+        <activity android:name="org.mozilla.gecko.GeckoPreferences"
+                android:label="@string/preferences_title"
+                android:excludeFromRecents="true"
+                >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest> 

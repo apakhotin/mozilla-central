@@ -122,6 +122,13 @@ public class GeckoAppShell
 
     public static native void processNextNativeEvent();
 
+    public static native void setBoolPref(String pref, boolean value);
+    public static native void setIntPref(String pref, int value);
+    public static native void setStringPref(String pref, String value, String data);
+    public static native boolean getBoolPref(String pref, boolean defaultValue);
+    public static native int getIntPref(String pref, int defaultValue);
+    public static native String getStringPref(String pref, String defaultValue);
+
     // A looper thread, accessed by GeckoAppShell.getHandler
     private static class LooperThread extends Thread {
         public SynchronousQueue<Handler> mHandlerQueue =
